@@ -1,6 +1,7 @@
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
 local placeId = game.PlaceId
 
 local screenGui = Instance.new("ScreenGui")
@@ -35,6 +36,20 @@ local function andarAleatorio(humanoid, hrp)
     humanoid.MoveToFinished:Wait()
 end
 
+local function teleportarOutroServidor()
+    local url = "https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100"
+    local data = HttpService:JSONDecode(game:HttpGet(url))
+
+    for _,server in ipairs(data.data) do
+        if server.playing < server.maxPlayers and server.id ~= game.JobId then
+            TeleportService:TeleportToPlaceInstance(placeId, server.id, player)
+            return
+        end
+    end
+
+    TeleportService:Teleport(placeId, player)
+end
+
 local function Iniciar()
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
@@ -61,7 +76,7 @@ local function Iniciar()
     andarAleatorio(humanoid, hrp)
     task.wait(2)
 
-    TeleportService:Teleport(placeId, player)
+    teleportarOutroServidor()
 
     task.wait(math.random(2,4))
 
@@ -73,7 +88,7 @@ local function Iniciar()
 
     task.wait(1)
 
-    TeleportService:Teleport(placeId, player)
+    teleportarOutroServidor()
 end
 
 task.spawn(function()
