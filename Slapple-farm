@@ -10,9 +10,9 @@ screenGui.Parent = playerGui
 
 local textLabel = Instance.new("TextLabel")
 textLabel.Size = UDim2.new(0, 200, 0, 50)
-textLabel.Position = UDim2.new(1, -210, 1, -60)
+textLabel.Position = UDim2.new(1, -800, 1, -60)
 textLabel.BackgroundTransparency = 1
-textLabel.Text = "Made By John"
+textLabel.Text = "Made By John-Loadstring"
 textLabel.TextColor3 = Color3.new(1, 1, 1)
 textLabel.Font = Enum.Font.Bangers
 textLabel.TextSize = 25
@@ -33,7 +33,7 @@ local Luva10 = CFrame.new(-365.8, 52.6, -28)
 local function andarAleatorio(humanoid, hrp)
     local offset = Vector3.new(math.random(-5,5), 0, math.random(-5,5))
     humanoid:MoveTo(hrp.Position + offset)
-    humanoid.MoveToFinished:Wait()
+    humanoid.MoveToFinished:Wait(2)
 end
 
 local function teleportarOutroServidor()
@@ -50,6 +50,30 @@ local function teleportarOutroServidor()
     TeleportService:Teleport(placeId, player)
 end
 
+local function travarInicial()
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:WaitForChild("HumanoidRootPart")
+    local pos = hrp.CFrame
+
+    local rodando = true
+
+    task.spawn(function()
+        while rodando do
+            hrp.CFrame = pos
+            task.wait()
+        end
+    end)
+
+    while true do
+        local loading = playerGui:FindFirstChild("LoadingIndicator", true)
+        if not loading or loading.Visible == false then
+            rodando = false
+            break
+        end
+        task.wait(0.2)
+    end
+end
+
 local function Iniciar()
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
@@ -58,7 +82,7 @@ local function Iniciar()
     local alvo = workspace.Lobby:WaitForChild("Teleport1")
 
     humanoid:MoveTo(alvo.Position)
-    humanoid.MoveToFinished:Wait()
+    humanoid.MoveToFinished:Wait(5)
 
     andarAleatorio(humanoid, hrp)
     task.wait(0.5)
@@ -73,8 +97,7 @@ local function Iniciar()
         end
     end
 
-    andarAleatorio(humanoid, hrp)
-    task.wait(2)
+    task.wait(1)
 
     teleportarOutroServidor()
 
@@ -92,14 +115,6 @@ local function Iniciar()
 end
 
 task.spawn(function()
-    while true do
-        local loading = playerGui:FindFirstChild("LoadingIndicator", true) 
-        
-        if not loading or loading.Visible == false then
-            Iniciar()
-            break 
-        end
-        
-        task.wait(0.5)
-    end
+    travarInicial()
+    Iniciar()
 end)
