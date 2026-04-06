@@ -1,7 +1,6 @@
 local player = game.Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
 local placeId = game.PlaceId
 
 local screenGui = Instance.new("ScreenGui")
@@ -10,7 +9,7 @@ screenGui.Parent = playerGui
 
 local textLabel = Instance.new("TextLabel")
 textLabel.Size = UDim2.new(0, 200, 0, 50)
-textLabel.Position = UDim2.new(1, -500, 1, -90)
+textLabel.Position = UDim2.new(1, -210, 1, -60)
 textLabel.BackgroundTransparency = 1
 textLabel.Text = "Made By John"
 textLabel.TextColor3 = Color3.new(1, 1, 1)
@@ -30,46 +29,6 @@ local Luva8 = CFrame.new(-412.2, 50.3, -43.6)
 local Luva9 = CFrame.new(-372.4, 52.2, -28.8)
 local Luva10 = CFrame.new(-365.8, 52.6, -28)
 
-local pontos = {
-    Luva1, Luva2, Luva3, Luva4, Luva5,
-    Luva6, Luva7, Luva8, Luva9, Luva10
-}
-
-local function teleportHumano(hrp, destino)
-    local offset = Vector3.new(
-        math.random(-2,2),
-        0,
-        math.random(-2,2)
-    )
-
-    hrp.CFrame = destino + offset
-    task.wait(math.random(8,15)/10)
-end
-
-local visited = {}
-
-local function serverHop()
-    local url = "https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100"
-    
-    local success, response = pcall(function()
-        return game:HttpGet(url)
-    end)
-
-    if success then
-        local data = HttpService:JSONDecode(response)
-
-        for _, server in pairs(data.data) do
-            if server.playing < server.maxPlayers and not visited[server.id] then
-                visited[server.id] = true
-                TeleportService:TeleportToPlaceInstance(placeId, server.id, player)
-                break
-            end
-        end
-    else
-        TeleportService:Teleport(placeId, player)
-    end
-end
-
 local function Iniciar()
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
@@ -80,13 +39,23 @@ local function Iniciar()
     humanoid:MoveTo(alvo.Position)
     humanoid.MoveToFinished:Wait()
     task.wait(1)
-
-    for _, ponto in ipairs(pontos) do
-        teleportHumano(hrp, ponto)
-    end
-
+    
+    hrp.CFrame = Luva1 task.wait(0.2)
+    hrp.CFrame = Luva2 task.wait(0.2)
+    hrp.CFrame = Luva3 task.wait(0.2)
+    hrp.CFrame = Luva4 task.wait(0.2)
+    hrp.CFrame = Luva5 task.wait(0.2)
+    hrp.CFrame = Luva6 task.wait(0.2)
+    hrp.CFrame = Luva7 task.wait(0.2)
+    hrp.CFrame = Luva8 task.wait(0.2)
+    hrp.CFrame = Luva9 task.wait(0.2)
+    hrp.CFrame = Luva10
+    
     task.wait(3.5)
-    serverHop()
+
+    TeleportService:Teleport(placeId, player)
+    task.wait(math.random(2,5))
+    TeleportService:Teleport(placeId, player)
 end
 
 task.spawn(function()
