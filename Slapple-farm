@@ -81,11 +81,29 @@ local function Iniciar()
 
     local alvo = workspace.Lobby:WaitForChild("Teleport1")
 
-    humanoid:MoveTo(alvo.Position)
-    humanoid.MoveToFinished:Wait(5)
+    local chegou = false
 
-    andarAleatorio(humanoid, hrp)
-    task.wait(0.5)
+    local conn
+    conn = hrp.Touched:Connect(function(hit)
+        if hit == alvo then
+            chegou = true
+            humanoid:Move(Vector3.zero)
+            humanoid:MoveTo(hrp.Position)
+            if conn then conn:Disconnect() end
+        end
+    end)
+
+    humanoid:MoveTo(alvo.Position)
+
+    local tempo = 0
+    while not chegou and tempo < 5 do
+        tempo += task.wait()
+    end
+
+    humanoid:Move(Vector3.zero)
+    humanoid:MoveTo(hrp.Position)
+
+    task.wait(0.2)
 
     local lista = {Luva1, Luva2, Luva3, Luva4, Luva5, Luva6, Luva7, Luva8, Luva9, Luva10}
 
