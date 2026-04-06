@@ -37,17 +37,9 @@ local function andarAleatorio(humanoid, hrp)
 end
 
 local function teleportarOutroServidor()
-    local url = "https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100"
-    local data = HttpService:JSONDecode(game:HttpGet(url))
-
-    for _,server in ipairs(data.data) do
-        if server.playing < server.maxPlayers and server.id ~= game.JobId then
-            TeleportService:TeleportToPlaceInstance(placeId, server.id, player)
-            return
-        end
-    end
-
-    TeleportService:Teleport(placeId, player)
+    local teleportOptions = Instance.new("TeleportOptions")
+    teleportOptions.ShouldReserveServer = true
+    TeleportService:TeleportAsync(placeId, {player}, teleportOptions)
 end
 
 local function travarInicial()
