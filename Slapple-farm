@@ -36,8 +36,13 @@ local pontos = {
 }
 
 local function teleportHumano(hrp, destino)
-    hrp.CFrame = destino + Vector3.new(0,2,0)
-    hrp.AssemblyLinearVelocity = Vector3.new(0,-12,0)
+    local offset = Vector3.new(
+        math.random(-2,2)/10,
+        0.5,
+        math.random(-2,2)/10
+    )
+
+    hrp.CFrame = destino + offset
     task.wait(math.random(3,5)/10)
 end
 
