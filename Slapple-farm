@@ -37,9 +37,23 @@ local function andarAleatorio(humanoid, hrp)
 end
 
 local function teleportarOutroServidor()
-    local teleportOptions = Instance.new("TeleportOptions")
-    teleportOptions.ShouldReserveServer = true
-    TeleportService:TeleportAsync(placeId, {player}, teleportOptions)
+    local url = "https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100"
+    local data = HttpService:JSONDecode(game:HttpGet(url))
+
+    local servidoresValidos = {}
+
+    for _,server in ipairs(data.data) do
+        if server.playing < server.maxPlayers and server.id ~= game.JobId then
+            table.insert(servidoresValidos, server.id)
+        end
+    end
+
+    if #servidoresValidos > 0 then
+        local escolhido = servidoresValidos[math.random(1, #servidoresValidos)]
+        TeleportService:TeleportToPlaceInstance(placeId, escolhido, player)
+    else
+        TeleportService:Teleport(placeId, player)
+    end
 end
 
 local function travarInicial()
