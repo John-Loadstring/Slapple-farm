@@ -81,21 +81,11 @@ local function Iniciar()
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
     local hrp = character:WaitForChild("HumanoidRootPart")
-    local alvo = workspace.Lobby:WaitForChild("Teleport1")
+    local lobby = workspace:WaitForChild("Lobby")
 
-    hrp.CFrame = alvo.CFrame
-
-    local miniPasso = Vector3.new(math.random(-2,2),0,math.random(-2,2))
-    humanoid:MoveTo(hrp.Position + miniPasso)
-
-    local chegou = false
-    local tempo = 0
-    while not chegou and tempo < 5 do
-        if (hrp.Position - (alvo.Position + miniPasso)).Magnitude < 1 then
-            chegou = true
-        else
-            tempo += task.wait(0.05)
-        end
+    while hrp:IsDescendantOf(lobby) or (hrp.Position - lobby.Position).Magnitude < 1 do
+        humanoid:Move(Vector3.zero)
+        task.wait(0.1)
     end
 
     for _,cf in ipairs(lista) do
