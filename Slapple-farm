@@ -4,46 +4,42 @@ local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local placeId = game.PlaceId
 
-local listaLuva = {
-    CFrame.new(-418.3, 89.2, -28.4),
-    CFrame.new(-432.7, 50.3, -24.1),
-    CFrame.new(-415.4, 52, 14.8),
-    CFrame.new(-407, 51.4, 13.1),
-    CFrame.new(-397.6, 57.2, 20.4),
-    CFrame.new(-384.6, 52.4, 17.7),
-    CFrame.new(-371.6, 57.6, 13.1),
-    CFrame.new(-412.2, 50.3, -43.6),
-    CFrame.new(-372.4, 52.2, -28.8),
-    CFrame.new(-365.8, 52.6, -28)
+local listaLuvas = {
+    CFrame.new(-418.3, 89.2, -28.4), CFrame.new(-432.7, 50.3, -24.1),
+    CFrame.new(-415.4, 52, 14.8), CFrame.new(-407, 51.4, 13.1),
+    CFrame.new(-397.6, 57.2, 20.4), CFrame.new(-384.6, 52.4, 17.7),
+    CFrame.new(-371.6, 57.6, 13.1), CFrame.new(-412.2, 50.3, -43.6),
+    CFrame.new(-372.4, 52.2, -28.8), CFrame.new(-365.8, 52.6, -28)
 }
 
 local function andarAleatorio(humanoid, hrp)
-    local targetPos = hrp.Position + Vector3.new(math.random(-3,3), 0, math.random(-3,3))
-    humanoid:MoveTo(targetPos)
-    local t = 0
-    while t < 0.8 do
-        if (hrp.Position - targetPos).Magnitude < 1 then break end
-        t += task.wait()
-    end
+    local offset = Vector3.new(math.random(-5,5), 0, math.random(-5,5))
+    humanoid:MoveTo(hrp.Position + offset)
+    humanoid.MoveToFinished:Wait(2)
 end
 
 local function teleportarOutroServidor()
     task.spawn(function()
-        local servers = {}
-        local cursor
-        repeat
-            local url = "https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100"
-            if cursor then url = url.."&cursor="..cursor end
-            local success, response = pcall(function() return HttpService:JSONDecode(game:HttpGet(url)) end)
-            if success and response and response.data then
-                for _, s in ipairs(response.data) do
-                    if s.playing < s.maxPlayers and s.id ~= game.JobId then table.insert(servers, s.id) end
+        local servidoresValidos = {}
+        local cursor = nil
+        pcall(function()
+            repeat
+                local url = "https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100"
+                if cursor then url = url .. "&cursor=" .. cursor end
+                local data = HttpService:JSONDecode(game:HttpGet(url))
+                if data and data.data then
+                    for _,server in ipairs(data.data) do
+                        if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                            table.insert(servidoresValidos, server.id)
+                        end
+                    end
                 end
-                cursor = response.nextPageCursor
-            else cursor = nil end
-        until not cursor
-        if #servers > 0 then
-            TeleportService:TeleportToPlaceInstance(placeId, servers[math.random(1, #servers)], player)
+                cursor = data.nextPageCursor
+            until not cursor
+        end)
+
+        if #servidoresValidos > 0 then
+            TeleportService:TeleportToPlaceInstance(placeId, servidoresValidos[math.random(1, #servidoresValidos)], player)
         else
             TeleportService:Teleport(placeId, player)
         end
@@ -54,52 +50,60 @@ local function travarInicial()
     local character = player.Character or player.CharacterAdded:Wait()
     local hrp = character:WaitForChild("HumanoidRootPart")
     local pos = hrp.CFrame
-    local rodando = true
-    task.spawn(function()
-        while rodando do hrp.CFrame = pos task.wait() end
-    end)
-    local waited = 0
-    while waited < 15 do
-        local loading = playerGui:FindFirstChild("LoadingIndicator", true)
-        if not loading or loading.Visible == false then break end
-        waited += 0.1
-        task.wait(0.1)
+    local rodando = true  
+
+    task.spawn(function()  
+        while rodando do hrp.CFrame = pos task.wait() end  
+    end)  
+
+    while true do  
+        local loading = playerGui:FindFirstChild("LoadingIndicator", true)  
+        if not loading or loading.Visible == false then rodando = false break end  
+        task.wait(0.2)  
     end
-    rodando = false
 end
 
 local function Iniciar()
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
     local hrp = character:WaitForChild("HumanoidRootPart")
-    local alvo = workspace:WaitForChild("Lobby"):WaitForChild("Teleport1")
-    local chegou = false
-    local conn
-    conn = hrp.Touched:Connect(function(hit)
+    local alvo = workspace.Lobby:WaitForChild("Teleport1")  
+    local chegou = false  
+
+    local conn  
+    conn = hrp.Touched:Connect(function(hit)  
         if hit:IsDescendantOf(alvo) then
-            chegou = true
-            humanoid:Move(Vector3.zero)
-            if conn then conn:Disconnect() end
-        end
-    end)
-    humanoid:MoveTo(alvo.Position)
-    local tempo = 0
-    while not chegou and tempo < 2 do tempo += task.wait() end
-    humanoid:Move(Vector3.zero)
-    task.wait(0.05)
-    for i, cf in ipairs(listaLuva) do
-        hrp.CFrame = cf
-        task.wait(0.05)
-        if i % 2 == 0 then andarAleatorio(humanoid, hrp) end
-    end
-    task.wait(0.1)
+            chegou = true  
+            humanoid:Move(Vector3.zero)  
+            if conn then conn:Disconnect() end  
+        end  
+    end)  
+
+    humanoid:MoveTo(alvo.Position)  
+    local tempo = 0  
+    while not chegou and tempo < 5 do tempo += task.wait() end  
+
+    humanoid:Move(Vector3.zero)  
+    task.wait(0.2)  
+
+    for i, cf in ipairs(listaLuvas) do  
+        hrp.CFrame = cf  
+        task.wait(0.2)  
+        if i % 2 == 0 then andarAleatorio(humanoid, hrp) end  
+    end  
+
+    task.wait(1)  
+    teleportarOutroServidor()  
+    task.wait(math.random(2,4))  
+
+    local character2 = player.Character or player.CharacterAdded:Wait()  
+    andarAleatorio(character2:WaitForChild("Humanoid"), character2:WaitForChild("HumanoidRootPart"))  
+
+    task.wait(1)  
     teleportarOutroServidor()
 end
 
 task.spawn(function()
-    while true do
-        travarInicial()
-        Iniciar()
-        task.wait(0.1)
-    end
+    travarInicial()
+    Iniciar()
 end)
