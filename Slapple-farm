@@ -85,19 +85,16 @@ local function Iniciar()
     local hrp = character:WaitForChild("HumanoidRootPart")
     local alvo = workspace.Lobby:WaitForChild("Teleport1")
 
-    local conn
-    conn = alvo.Touched:Connect(function(hit)
-        if hit.Parent == character then
-            if conn then conn:Disconnect() end
-            for _,cf in ipairs(lista) do
-                hrp.CFrame = cf
-                local offset = Vector3.new(math.random(-2,2), 0, math.random(-2,2))
-                humanoid:MoveTo(hrp.Position + offset)
-                task.wait(0.1)
-            end
-            teleportarOutroServidor()
-        end
-    end)
+    hrp.CFrame = alvo.CFrame
+
+    for _,cf in ipairs(lista) do
+        hrp.CFrame = cf
+        local offset = Vector3.new(math.random(-2,2), 0, math.random(-2,2))
+        humanoid:MoveTo(hrp.Position + offset)
+        task.wait(0.1)
+    end
+
+    teleportarOutroServidor()
 end
 
 task.spawn(function()
