@@ -40,7 +40,7 @@ local function andarAleatorio(humanoid, hrp)
     local offset = Vector3.new(math.random(-5,5), 0, math.random(-5,5))
     local targetPos = hrp.Position + offset
     humanoid:MoveTo(targetPos)
-    local timeout = 3
+    local timeout = 1.5
     local t = 0
     while t < timeout do
         if (hrp.Position - targetPos).Magnitude < 1 then break end
@@ -138,7 +138,7 @@ local function Iniciar()
 
     for i, cf in ipairs(listaLuva) do
         hrp.CFrame = cf
-        task.wait(0.2)
+        task.wait(0.07)
         if i % 2 == 0 then
             andarAleatorio(humanoid, hrp)
         end
@@ -146,7 +146,7 @@ local function Iniciar()
 
     task.wait(1)
     teleportarOutroServidor()
-    task.wait(math.random(2,4))
+    task.wait(math.random(1,2))
 
     -- Andar aleatório após teleporte
     local character2 = player.Character or player.CharacterAdded:Wait()
